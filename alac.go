@@ -21,13 +21,13 @@ func New(sampleSize, numberOfChannels int) File {
 // DecodeFrame Decodes a frame from inputBuffer and puts it in the outputBuffer.
 func (f *File) DecodeFrame(inputBuffer []byte) []byte {
 	size := C.int(len(inputBuffer))
-	p := unsafe.Pointer(C.malloc(C.size_t(len(inputBuffer))))
-	
-	cBuf := (*[1 << 30]byte)(p)
-	copy(cBuf[:], inputBuffer)
+	op := C.malloc(C.size_t(len(inputBuffer)))
+	ip := (*C.uchar)(C.malloc(C.size_t(len(inputBuffer))))
+	//cOutBuf := (*[1 << 30]byte)(op)
+	copy(C.GoBytes(unsafe.Pointer(ip), size)[:], inputBuffer)
 
-	C.alac_decode_frame(f.file, (*C.uchar)(unsafe.Pointer(&inputBuffer)), p, &size)
-	return C.GoBytes(p, size)
+	C.alac_decode_frame(f.file, ip, op, &size)
+	return C.GoBytes(op, size)
 }
 
 // SetInfo Set's the "info" for our AlacFile.
