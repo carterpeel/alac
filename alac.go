@@ -22,7 +22,7 @@ func New(sampleSize, numberOfChannels int) File {
 // Might make sense to change this API to return the output buffer instead.
 func (f *File) DecodeFrame(inputBuffer, outputBuffer []byte) {
 	size := C.int(len(outputBuffer))
-	C.alac_decode_frame(f.file, (*C.uchar)(unsafe.Pointer(&inputBuffer)), (*C.uchar)(unsafe.Pointer(&outputBuffer)), &size)
+	C.alac_decode_frame(f.file, (*C.uchar)(unsafe.Pointer(&inputBuffer)), unsafe.Pointer(&outputBuffer), &size)
 }
 
 // SetInfo Set's the "info" for our AlacFile.
