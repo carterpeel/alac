@@ -19,11 +19,10 @@ func New(sampleSize, numberOfChannels int) File {
 }
 
 // DecodeFrame Decodes a frame from inputBuffer and puts it in the outputBuffer.
-// Might make sense to change this API to return the output buffer instead.
 func (f *File) DecodeFrame(inputBuffer []byte) []byte {
 	size := C.int(len(inputBuffer))
-	p := C.malloc(C.size_t(len(inputBuffer)))
-
+	p := unsafe.Pointer(C.malloc(C.size_t(len(inputBuffer))))
+	
 	cBuf := (*[1 << 30]byte)(p)
 	copy(cBuf[:], inputBuffer)
 
