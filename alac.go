@@ -20,9 +20,15 @@ func New(sampleSize, numberOfChannels int) File {
 
 // DecodeFrame Decodes a frame from inputBuffer and puts it in the outputBuffer.
 // Might make sense to change this API to return the output buffer instead.
-func (f *File) DecodeFrame(inputBuffer, outputBuffer []byte) {
-	size := C.int(len(outputBuffer))
-	C.alac_decode_frame(f.file, (*C.uchar)(unsafe.Pointer(&inputBuffer)), unsafe.Pointer(&outputBuffer[0]), &size)
+func (f *File) DecodeFrame(inputBuffer []byte) []byte {
+	size := C.int(len(inputBuffer))
+	p := C.malloc(C.size_t(len(inputBuffer)))
+
+	cBuf := (*[1 << 30]byte)(p)
+	copy(cBuf[:], inputBuffer)
+
+	C.alac_decode_frame(f.file, (*C.uchar)(unsafe.Pointer(&inputBuffer)), p, &size)
+	return C.GoBytes(p, size)
 }
 
 // SetInfo Set's the "info" for our AlacFile.
